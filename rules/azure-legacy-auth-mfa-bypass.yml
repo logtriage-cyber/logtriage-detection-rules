@@ -1,0 +1,39 @@
+# Detect Legacy-Auth MFA Bypass in Azure AD Sign-In Logs
+# Rule ID: LTR-0004
+# Source + explanation: https://logtriage.app/rules/azure-legacy-auth-mfa-bypass/
+# Validated against a real sample log (malicious/azure_mfa_bypass.json): fires on the malicious sample, silent on the benign one.
+
+title: Azure AD Sign-In via Legacy Authentication (MFA Bypass)
+id: 2f8c5d11-4a7e-4b90-9c33-7e1d6a2b4c04
+status: experimental
+description: >
+  Detects interactive sign-ins using legacy authentication clients
+  ("Other clients", Exchange ActiveSync, IMAP/POP/SMTP basic auth). Legacy auth
+  protocols cannot satisfy a modern MFA challenge, so conditional-access MFA is
+  simply not applied — making them the single most common path attackers use to
+  replay stolen credentials past MFA.
+references:
+  - https://attack.mitre.org/techniques/T1078/004/
+author: LogTriage
+date: 2026/06/23
+logsource:
+  product: azure
+  service: signinlogs
+detection:
+  selection:
+    clientAppUsed:
+      - 'Other clients'
+      - 'Exchange ActiveSync'
+      - 'IMAP4'
+      - 'POP3'
+      - 'Authenticated SMTP'
+      - 'MAPI Over HTTP'
+  condition: selection
+falsepositives:
+  - Legacy mail clients / LOB apps still on basic auth (inventory and migrate)
+  - Documented service accounts on legacy protocols
+level: high
+tags:
+  - attack.initial_access
+  - attack.defense_evasion
+  - attack.t1078.004

@@ -1,0 +1,33 @@
+# Detect Port Scanning in AWS VPC Flow Logs
+# Rule ID: LTR-0005
+# Source + explanation: https://logtriage.app/rules/vpc-flow-port-scanning/
+# Validated against a real sample log (malicious/vpc_flow_malicious.log): fires on the malicious sample, silent on the benign one.
+
+title: AWS VPC Flow — Port Scanning (REJECT fan-out)
+id: 7b3e9a42-6c18-4d57-8a21-1f9c4e2d6b05
+status: experimental
+description: >
+  Detects a single source address generating a burst of rejected connections
+  across many distinct destination ports in a short window — the signature of a
+  horizontal/vertical port scan. REJECT-heavy fan-out from one srcaddr is the
+  cheapest reliable network-layer scan indicator.
+references:
+  - https://attack.mitre.org/techniques/T1046/
+author: LogTriage
+date: 2026/06/23
+logsource:
+  product: aws
+  service: vpcflow
+detection:
+  selection:
+    action: 'REJECT'
+  timeframe: 5m
+  condition: selection | count(dstport) by srcaddr > 15
+falsepositives:
+  - Authorized vulnerability scanners (allowlist source IPs)
+  - Load balancer / health-check fan-out
+level: medium
+tags:
+  - attack.discovery
+  - attack.reconnaissance
+  - attack.t1046

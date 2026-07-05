@@ -1,0 +1,37 @@
+# Detect Path Traversal & Sensitive-File Recon in Cloudflare Logs
+# Rule ID: LTR-0010
+# Source + explanation: https://logtriage.app/rules/cloudflare-path-traversal-recon/
+# Validated against a real sample log (malicious/cloudflare_waf_attack.json): fires on the malicious sample, silent on the benign one.
+
+title: Cloudflare — Path Traversal / Sensitive File Probe
+id: 1b6e4a83-7c29-4d50-9a38-6e2f9c3b1a10
+status: experimental
+description: >
+  Detects directory-traversal and sensitive-file access attempts at the Cloudflare
+  edge — requests for /etc/passwd, /etc/shadow, .env, and ../ traversal sequences.
+  Whether WAF-blocked or merely logged, these requests indicate active recon /
+  exploitation of a public-facing app.
+references:
+  - https://attack.mitre.org/techniques/T1190/
+author: LogTriage
+date: 2026/07/01
+logsource:
+  product: cloudflare
+detection:
+  selection:
+    ClientRequestPath|contains:
+      - '../'
+      - '/etc/passwd'
+      - '/etc/shadow'
+      - '/.env'
+      - '/.git/'
+      - 'wp-config'
+  condition: selection
+falsepositives:
+  - Authorized scanners / bug-bounty researchers (allowlist source IPs)
+  - Rare legitimate paths containing encoded '..' (inspect first)
+level: high
+tags:
+  - attack.initial_access
+  - attack.discovery
+  - attack.t1190

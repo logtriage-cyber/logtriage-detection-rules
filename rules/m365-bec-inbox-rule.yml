@@ -1,0 +1,36 @@
+# Detect Business Email Compromise via Malicious Inbox Rules (Microsoft 365)
+# Rule ID: LTR-0006
+# Source + explanation: https://logtriage.app/rules/m365-bec-inbox-rule/
+# Validated against a real sample log (malicious/m365_bec_data_exfil.json): fires on the malicious sample, silent on the benign one.
+
+title: M365 Mailbox Rule / Forwarding Change — BEC Indicator
+id: 4c9d2e83-5b71-4a26-9f18-3e7a1c6b9d06
+status: experimental
+description: >
+  Detects creation or modification of inbox rules and mailbox forwarding in the
+  Microsoft 365 Unified Audit Log — the hallmark of business email compromise,
+  where an attacker who has taken over a mailbox auto-forwards or auto-deletes
+  mail to hide their activity and exfiltrate correspondence.
+references:
+  - https://attack.mitre.org/techniques/T1114/003/
+author: LogTriage
+date: 2026/06/23
+logsource:
+  product: m365
+  service: exchange
+detection:
+  selection:
+    Operation:
+      - 'New-InboxRule'
+      - 'Set-InboxRule'
+      - 'Set-Mailbox'
+      - 'New-TransportRule'
+  condition: selection
+falsepositives:
+  - Legitimate vacation forwarding / user-created Outlook rules
+  - Admin mailbox configuration during onboarding or migration
+level: high
+tags:
+  - attack.collection
+  - attack.exfiltration
+  - attack.t1114.003

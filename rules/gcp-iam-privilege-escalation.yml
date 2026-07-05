@@ -1,0 +1,40 @@
+# Detect IAM Privilege Escalation in GCP Cloud Audit Logs
+# Rule ID: LTR-0008
+# Source + explanation: https://logtriage.app/rules/gcp-iam-privilege-escalation/
+# Validated against a real sample log (malicious/gcp_iam_escalation.json): fires on the malicious sample, silent on the benign one.
+
+title: GCP IAM Privilege Escalation
+id: 5e7b2d94-1a63-4c08-9f21-8d3a6c1b4e08
+status: experimental
+description: >
+  Detects GCP IAM actions commonly chained for privilege escalation and
+  persistence — binding new roles (SetIamPolicy), minting service-account keys,
+  and creating custom roles. Highest fidelity when scoped to principals outside
+  your sanctioned IAM-administration set.
+references:
+  - https://attack.mitre.org/techniques/T1098/
+author: LogTriage
+date: 2026/07/01
+logsource:
+  product: gcp
+  service: gcp.audit
+detection:
+  selection:
+    protoPayload.methodName:
+      - 'SetIamPolicy'
+      - 'google.iam.admin.v1.IAM.CreateServiceAccountKey'
+      - 'google.iam.admin.v1.IAM.CreateRole'
+      - 'google.iam.admin.v1.IAM.CreateServiceAccount'
+  filter_known_admins:
+    protoPayload.authenticationInfo.principalEmail|endswith:
+      - '@terraform-ci.iam.gserviceaccount.com'
+      - '-platform-admin@your-org.iam.gserviceaccount.com'
+  condition: selection and not filter_known_admins
+falsepositives:
+  - Sanctioned IAM admin / Terraform CI principals (add to filter_known_admins)
+  - Landing-zone / project bootstrap
+level: high
+tags:
+  - attack.privilege_escalation
+  - attack.persistence
+  - attack.t1098

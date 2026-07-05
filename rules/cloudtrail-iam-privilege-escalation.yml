@@ -1,0 +1,45 @@
+# Detect IAM Privilege Escalation in AWS CloudTrail
+# Rule ID: LTR-0002
+# Source + explanation: https://logtriage.app/rules/cloudtrail-iam-privilege-escalation/
+# Validated against a real sample log (malicious/cloudtrail_iam_escalation.json): fires on the malicious sample, silent on the benign one.
+
+title: AWS IAM Privilege Escalation via Policy Modification
+id: 9d2b4f60-7c11-4e83-bb6a-5e1a9f3c7d02
+status: experimental
+description: >
+  Detects IAM actions commonly chained for privilege escalation — attaching a
+  managed policy to a user, injecting an inline policy, creating a new policy
+  version, or weakening the account password policy. Alerting fidelity is highest
+  when scoped to principals that do not normally perform IAM administration.
+references:
+  - https://attack.mitre.org/techniques/T1098/
+author: LogTriage
+date: 2026/06/22
+logsource:
+  product: aws
+  service: cloudtrail
+detection:
+  selection:
+    eventSource: 'iam.amazonaws.com'
+    eventName:
+      - 'AttachUserPolicy'
+      - 'AttachRolePolicy'
+      - 'PutUserPolicy'
+      - 'PutRolePolicy'
+      - 'CreatePolicyVersion'
+      - 'CreatePolicy'
+      - 'DeleteAccountPasswordPolicy'
+      - 'UpdateAssumeRolePolicy'
+  filter_known_admins:
+    userIdentity.arn|contains:
+      - ':role/PlatformAdmin'
+      - ':role/iam-ci'
+  condition: selection and not filter_known_admins
+falsepositives:
+  - Sanctioned IAM administration by platform/CI roles (add them to filter_known_admins)
+  - Landing-zone / account bootstrap provisioning
+level: high
+tags:
+  - attack.privilege_escalation
+  - attack.persistence
+  - attack.t1098
