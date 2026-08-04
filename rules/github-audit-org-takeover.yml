@@ -1,0 +1,54 @@
+# Detect GitHub Organization Takeover and Backdooring in Audit Logs
+# Rule ID: LTR-0014
+# Source + explanation: https://logtriage.app/rules/github-audit-org-takeover/
+# Validated against a real sample log (malicious/github_audit_attack.json): fires on the malicious sample, silent on the benign one.
+
+title: GitHub Organization Takeover and Backdoor Persistence
+id: 9e2f7b58-4c31-42a6-b7d9-05e8a1c36f4d
+status: experimental
+description: >
+  Detects the action sequence of a GitHub organization takeover. An attacker who
+  compromises an owner account disables the 2FA requirement to weaken recovery,
+  adds a backdoor member for persistence, plants a webhook to exfiltrate source
+  on every push, and may destroy repositories to cover tracks or extort. Each
+  action is individually rare and administratively significant.
+references:
+  - https://attack.mitre.org/techniques/T1098/
+  - https://attack.mitre.org/techniques/T1195/002/
+author: LogTriage
+date: 2026/08/04
+logsource:
+  product: github
+  service: audit
+detection:
+  mfa_weakened:
+    action:
+      - 'two_factor_authentication.disabled'
+      - 'org.disable_two_factor_requirement'
+  persistence_added:
+    action:
+      - 'org.add_member'
+      - 'org.update_member'
+      - 'org.invite_member'
+  exfil_channel:
+    action:
+      - 'hook.create'
+      - 'integration_installation.create'
+  destructive:
+    action:
+      - 'repo.destroy'
+      - 'org.remove_member'
+  timeframe: 30m
+  condition: (mfa_weakened or destructive) or (persistence_added and exfil_channel)
+falsepositives:
+  - Planned org security-policy change during a migration (ticketed, by an owner)
+  - Legitimate CI/CD webhook setup pointing at a known internal endpoint
+  - Repository archival or cleanup during offboarding
+level: critical
+tags:
+  - attack.persistence
+  - attack.t1098
+  - attack.defense_evasion
+  - attack.t1562.001
+  - attack.initial_access
+  - attack.t1195.002

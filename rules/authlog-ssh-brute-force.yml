@@ -1,0 +1,40 @@
+# Detect SSH Brute Force and User Enumeration in Linux auth.log
+# Rule ID: LTR-0011
+# Source + explanation: https://logtriage.app/rules/authlog-ssh-brute-force/
+# Validated against a real sample log (malicious/authlog_brute_force.log): fires on the malicious sample, silent on the benign one.
+
+title: SSH Brute Force / User Enumeration in auth.log
+id: 3f9c1d47-6b28-4a95-8e13-7d40c2a5b6f1
+status: experimental
+description: >
+  Detects SSH password brute-forcing and username enumeration against a Linux
+  host. A burst of "Failed password" and "Invalid user" events from a single
+  source IP in a short window is the signature of an automated attack.
+  Triage pivot: check for an "Accepted password" from the same source IP right
+  after the burst, which confirms the brute force succeeded. That is
+  deliberately kept out of the condition — successful password logins are
+  normal in isolation, so matching them here would fire on benign activity.
+references:
+  - https://attack.mitre.org/techniques/T1110/001/
+  - https://attack.mitre.org/techniques/T1110/003/
+author: LogTriage
+date: 2026/08/04
+logsource:
+  product: linux
+  service: sshd
+detection:
+  failed_password:
+    message|contains: 'Failed password for'
+  invalid_user:
+    message|contains: 'Invalid user'
+  timeframe: 5m
+  condition: (failed_password or invalid_user) | count() by src_ip >= 10
+falsepositives:
+  - Stale key or expired password retried in a loop by one account
+  - Expired credential on a monitoring or backup agent (allowlist its IP)
+  - Background internet scanning on an exposed host with no fail2ban
+level: high
+tags:
+  - attack.credential_access
+  - attack.t1110.001
+  - attack.t1110.003

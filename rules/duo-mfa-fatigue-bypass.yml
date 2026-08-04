@@ -1,0 +1,43 @@
+# Detect MFA Fatigue and Bypass Abuse in Duo Security Logs
+# Rule ID: LTR-0013
+# Source + explanation: https://logtriage.app/rules/duo-mfa-fatigue-bypass/
+# Validated against a real sample log (malicious/duo_attack.json): fires on the malicious sample, silent on the benign one.
+
+title: Duo MFA Fatigue, Fraud Report, and Bypass Abuse
+id: 6d1a8f34-2c97-4e05-b8d6-91f7a3e4c25b
+status: experimental
+description: >
+  Detects abuse of the MFA layer in Duo. Three distinct high-signal conditions:
+  a user explicitly marking an authentication as fraudulent, Duo flagging a push
+  as anomalous (the push-bombing signature), and an authentication succeeding via
+  a bypass code rather than a real factor. A FRAUD report is a user telling you
+  directly that an attacker holds their password.
+references:
+  - https://attack.mitre.org/techniques/T1621/
+  - https://attack.mitre.org/techniques/T1556/006/
+author: LogTriage
+date: 2026/08/04
+logsource:
+  product: duo
+  service: authentication
+detection:
+  user_reported_fraud:
+    result: 'FRAUD'
+    reason: 'user_marked_fraud'
+  push_bombing:
+    result: 'DENY'
+    reason: 'anomalous_push'
+  bypass_used:
+    factor: 'bypass'
+    result: 'ALLOW'
+  condition: user_reported_fraud or push_bombing or bypass_used
+falsepositives:
+  - Single unexpected DENY from a background app re-authenticating
+  - Helpdesk-issued bypass code during phone replacement (correlate with a ticket)
+  - Push timeout and retry caused by a flaky mobile connection
+level: critical
+tags:
+  - attack.credential_access
+  - attack.t1621
+  - attack.defense_evasion
+  - attack.t1556.006
