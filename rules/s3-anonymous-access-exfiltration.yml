@@ -1,0 +1,46 @@
+# Detect Anonymous S3 Object Reads and Malicious Uploads in Server Access Logs
+# Rule ID: LTR-0016
+# Source + explanation: https://logtriage.app/rules/s3-anonymous-access-exfiltration/
+# Validated against a real sample log (malicious/s3_access_attack.log): fires on the malicious sample, silent on the benign one.
+
+title: S3 Anonymous Object Read and Script Upload
+id: c9b48814-efc5-4f0c-9d57-2eca393911d2
+status: experimental
+description: >
+  Detects two high-signal events in S3 server access logs. First, a successful
+  unauthenticated object download - the requester field is ANONYMOUS and the
+  operation REST.GET.OBJECT returned 200, which is only possible when the bucket
+  or object grants public access. Against a bucket that should be private, this
+  is confirmed data exposure, not a probe. Second, an upload of an executable
+  script into the bucket, the staging pattern used to plant payloads on
+  infrastructure that trusts bucket contents.
+references:
+  - https://attack.mitre.org/techniques/T1530/
+  - https://attack.mitre.org/techniques/T1608/001/
+author: LogTriage
+date: 2026/09/18
+logsource:
+  product: aws
+  service: s3
+detection:
+  anonymous_object_read:
+    requester: 'ANONYMOUS'
+    operation: 'REST.GET.OBJECT'
+    http_status: 200
+  script_upload:
+    operation: 'REST.PUT.OBJECT'
+    key|endswith:
+      - '.sh'
+      - '.exe'
+      - '.ps1'
+  condition: anonymous_object_read or script_upload
+falsepositives:
+  - Intentionally public buckets (static sites, download mirrors) - scope to private buckets
+  - CloudFront origin fetches without Origin Access Control signing
+  - CI/CD tooling uploading bootstrap scripts to an artifacts bucket (allowlist the role ARN)
+level: high
+tags:
+  - attack.collection
+  - attack.t1530
+  - attack.resource_development
+  - attack.t1608.001

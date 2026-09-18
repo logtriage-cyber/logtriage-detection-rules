@@ -1,0 +1,47 @@
+# Detect Web Attack Recon and SQL Injection in Zeek HTTP Logs
+# Rule ID: LTR-0018
+# Source + explanation: https://logtriage.app/rules/zeek-http-web-attack-recon/
+# Validated against a real sample log (malicious/zeek_http_attack.log): fires on the malicious sample, silent on the benign one.
+
+title: Zeek HTTP — Web Attack Recon, SQLi, and Tooling
+id: a5996c6e-547f-43ef-bdbc-7e4de0cb2fc5
+status: experimental
+description: >
+  Detects web-application attack activity in Zeek http.log network telemetry via
+  three independent signals: probing for sensitive files and admin panels
+  (/.env, /wp-admin/, /admin/config.php), a SQL injection payload in the request
+  URI (UNION SELECT), and the user-agent of an automated injection tool. Zeek
+  sees this from the wire, so it captures the attack even against an application
+  whose own logs are unavailable, misconfigured, or already tampered with. Any
+  one signal fires the rule.
+references:
+  - https://attack.mitre.org/techniques/T1595/002/
+  - https://attack.mitre.org/techniques/T1190/
+author: LogTriage
+date: 2026/09/18
+logsource:
+  product: zeek
+  service: http
+detection:
+  sensitive_file_probe:
+    uri|contains:
+      - '/.env'
+      - '/wp-admin/install.php'
+      - '/admin/config.php'
+  sqli_payload:
+    uri|contains:
+      - 'UNION SELECT'
+  attack_tool:
+    user_agent|contains:
+      - 'sqlmap'
+  condition: sensitive_file_probe or sqli_payload or attack_tool
+falsepositives:
+  - Authorized scanners (allowlist the originating host id.orig_h)
+  - An application path that legitimately contains config.php or an env route
+  - Announced bug-bounty or pentest traffic
+level: high
+tags:
+  - attack.reconnaissance
+  - attack.t1595.002
+  - attack.initial_access
+  - attack.t1190

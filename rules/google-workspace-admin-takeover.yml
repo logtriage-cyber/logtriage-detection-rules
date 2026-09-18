@@ -1,0 +1,43 @@
+# Detect Super Admin Grants and 2SV Tampering in Google Workspace Audit Logs
+# Rule ID: LTR-0017
+# Source + explanation: https://logtriage.app/rules/google-workspace-admin-takeover/
+# Validated against a real sample log (malicious/google_workspace_attack.json): fires on the malicious sample, silent on the benign one.
+
+title: Google Workspace Super Admin Grant and 2SV Tampering
+id: 5898235a-abe3-4152-b4ee-26642696c381
+status: experimental
+description: >
+  Detects admin-plane takeover in the Google Workspace Admin Reports API. Three
+  independent high-signal events: a super-admin role being granted to an account
+  (SUPER_ADMIN_ADD), two-step verification being disabled for a user
+  (2SV_DISABLE), and Google's own risk engine flagging a login as suspicious
+  (SUSPICIOUS_LOGIN). A super-admin grant is the highest-value action in a
+  Workspace tenant; disabling 2SV removes a victim's last authentication control.
+  Any one warrants an alert; seeing them in sequence from the same actor is an
+  account-takeover chain in progress.
+references:
+  - https://attack.mitre.org/techniques/T1098/
+  - https://attack.mitre.org/techniques/T1556/006/
+author: LogTriage
+date: 2026/09/18
+logsource:
+  product: gws
+  service: admin
+detection:
+  grant_super_admin:
+    eventName: 'SUPER_ADMIN_ADD'
+  disable_2sv:
+    eventName: '2SV_DISABLE'
+  suspicious_login:
+    eventName: 'SUSPICIOUS_LOGIN'
+  condition: grant_super_admin or disable_2sv or suspicious_login
+falsepositives:
+  - Genuine new super-admin appointment (should be announced and ticketed)
+  - Helpdesk-driven 2SV reset for a lost device (correlate with a ticket)
+  - Single SUSPICIOUS_LOGIN for a traveling employee with no follow-on admin changes
+level: critical
+tags:
+  - attack.persistence
+  - attack.t1098
+  - attack.defense_evasion
+  - attack.t1556.006

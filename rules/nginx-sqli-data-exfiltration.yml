@@ -1,0 +1,49 @@
+# Detect SQL Injection and Follow-on Data Exfiltration in nginx Access Logs
+# Rule ID: LTR-0015
+# Source + explanation: https://logtriage.app/rules/nginx-sqli-data-exfiltration/
+# Validated against a real sample log (malicious/nginx_sqli_exfiltration.log): fires on the malicious sample, silent on the benign one.
+
+title: SQL Injection Probing and Tooling in Web Access Logs
+id: 231c0417-c9db-4261-b090-8108ab062878
+status: experimental
+description: >
+  Detects SQL injection attempts in web-server access logs via two independent
+  signals: classic injection payloads in the query string (UNION SELECT,
+  boolean-based AND 1=1 / AND 1=2 pairs, ORDER BY column probing, time-based
+  SLEEP, and the URL-encoded quote-OR pattern), and the user-agent strings of
+  automated injection tools. Either alone justifies an alert; together they
+  indicate an active sqlmap-style campaign. Watch response sizes on requests
+  from the same source afterwards — a large 200 following the probes is the
+  exfiltration.
+references:
+  - https://attack.mitre.org/techniques/T1190/
+  - https://attack.mitre.org/techniques/T1595/002/
+author: LogTriage
+date: 2026/09/18
+logsource:
+  category: webserver
+detection:
+  sqli_payload:
+    cs-uri-query|contains:
+      - 'UNION SELECT'
+      - ' AND 1=1'
+      - ' AND 1=2'
+      - 'ORDER BY 1--'
+      - 'SLEEP('
+      - '%27%20OR%20'
+  sqli_tool:
+    c-useragent|contains:
+      - 'sqlmap'
+      - 'havij'
+      - 'jsql'
+  condition: sqli_payload or sqli_tool
+falsepositives:
+  - Authorized DAST scans (allowlist scanner source IPs)
+  - Application paths that legitimately accept SQL fragments (exclude the path)
+  - Announced pentest or bug-bounty engagement traffic
+level: high
+tags:
+  - attack.initial_access
+  - attack.t1190
+  - attack.reconnaissance
+  - attack.t1595.002
