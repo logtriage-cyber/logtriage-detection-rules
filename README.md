@@ -15,11 +15,13 @@ Most rule collections are published untested. Here, a build step confirms each r
 literals actually appear in a real malicious sample (and not in the matching benign sample), so
 nothing ships that doesn't provably fire. It's the difference between a paper rule and a working one.
 
-## Rules (18)
+## Rules (20)
 
 | ID | Rule | Log source | MITRE ATT&CK | Severity |
 |----|------|-----------|--------------|----------|
 | `LTR-0011` | [Detect SSH Brute Force and User Enumeration in Linux auth.log](https://logtriage.app/rules/authlog-ssh-brute-force/) | Linux auth.log / secure | T1110.001, T1110.003, T1078 | high |
+| `LTR-0019` | [Detect Vulnerability Scanners and Scripted Clients Hitting Admin/Auth Endpoints (AWS ALB / ELB Logs)](https://logtriage.app/rules/aws-alb-scanner-scripted-access/) | AWS ALB / ELB | T1595.002, T1190, T1020 | critical |
+| `LTR-0020` | [Detect Security Control Tampering in AWS Config — IAM Policy Deletion, Open Security Groups, CloudTrail Disablement](https://logtriage.app/rules/aws-config-security-control-tampering/) | AWS Config | T1562.001, T1562.007, T1562.008 | critical |
 | `LTR-0004` | [Detect Legacy-Auth MFA Bypass in Azure AD Sign-In Logs](https://logtriage.app/rules/azure-legacy-auth-mfa-bypass/) | Azure AD Sign-In Logs | T1078.004, T1556 | high |
 | `LTR-0010` | [Detect Path Traversal & Sensitive-File Recon in Cloudflare Logs](https://logtriage.app/rules/cloudflare-path-traversal-recon/) | Cloudflare Logs | T1190, T1083, T1595.001 | high |
 | `LTR-0002` | [Detect IAM Privilege Escalation in AWS CloudTrail](https://logtriage.app/rules/cloudtrail-iam-privilege-escalation/) | AWS CloudTrail | T1098, T1078.004, T1484 | high |
@@ -59,4 +61,4 @@ Released under the MIT License (see [LICENSE](LICENSE)) — free to use, adapt, 
 
 ---
 
-Maintained by [LogTriage](https://logtriage.app). Generated 2026-09-22.
+Maintained by [LogTriage](https://logtriage.app). Generated 2026-10-06.

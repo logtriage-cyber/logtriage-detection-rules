@@ -1,0 +1,52 @@
+# Detect Vulnerability Scanners and Scripted Clients Hitting Admin/Auth Endpoints (AWS ALB / ELB Logs)
+# Rule ID: LTR-0019
+# Source + explanation: https://logtriage.app/rules/aws-alb-scanner-scripted-access/
+# Validated against a real sample log (malicious/alb_attack.log): fires on the malicious sample, silent on the benign one.
+
+title: AWS ALB — Vulnerability Scanner and Scripted-Client Access to Sensitive Endpoints
+id: e5cc82ed-71dc-4762-8692-bc5a536b14eb
+status: experimental
+description: >
+  Detects two distinct signals in AWS ALB/ELB access logs. First, a request bearing
+  a known vulnerability-scanner user-agent (sqlmap and similar tools) — this is
+  unambiguous regardless of path or status, since no legitimate browser or
+  first-party integration identifies itself this way. Second, a scripted HTTP
+  client (python-requests, axios) reaching an admin, login, or export path — these
+  libraries are common in legitimate automation, so the selection requires the
+  sensitive path to avoid flagging every internal API caller.
+references:
+  - https://attack.mitre.org/techniques/T1595/002/
+  - https://attack.mitre.org/techniques/T1190/
+author: LogTriage
+date: 2026/10/06
+logsource:
+  product: aws
+  service: alb
+detection:
+  scanner_signature:
+    user_agent|contains:
+      - 'sqlmap'
+      - 'nikto'
+      - 'nmap'
+      - 'acunetix'
+  scripted_sensitive_access:
+    user_agent|contains:
+      - 'python-requests'
+      - 'axios'
+    request|contains:
+      - '/admin/'
+      - '/login'
+      - '/export'
+  condition: scanner_signature or scripted_sensitive_access
+falsepositives:
+  - Authorized pentest/scanner run (allowlist source IPs and time window)
+  - Internal service-to-service calls using python-requests/axios (scope to internal CIDRs)
+  - Monitoring bot whose path incidentally contains 'login'
+level: critical
+tags:
+  - attack.reconnaissance
+  - attack.t1595.002
+  - attack.initial_access
+  - attack.t1190
+  - attack.exfiltration
+  - attack.t1020

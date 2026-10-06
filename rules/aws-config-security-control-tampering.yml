@@ -1,0 +1,45 @@
+# Detect Security Control Tampering in AWS Config — IAM Policy Deletion, Open Security Groups, CloudTrail Disablement
+# Rule ID: LTR-0020
+# Source + explanation: https://logtriage.app/rules/aws-config-security-control-tampering/
+# Validated against a real sample log (malicious/aws_config_changes.json): fires on the malicious sample, silent on the benign one.
+
+title: AWS Config — IAM Policy Deletion, Open Security Group, or CloudTrail Deletion
+id: 9ac4798c-466d-4f98-a64b-a3561f6eb903
+status: experimental
+description: >
+  Detects three independent signals of security-control tampering in AWS Config's
+  configuration-item history: deletion of an IAM policy, a security group modified
+  to permit all traffic from anywhere (0.0.0.0/0), and deletion of a CloudTrail
+  trail. Any one of these, seen together or alone, is the signature of an attacker
+  (or a careless admin) removing the controls that would otherwise detect or block
+  what happens next.
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+  - https://attack.mitre.org/techniques/T1562/007/
+  - https://attack.mitre.org/techniques/T1562/008/
+author: LogTriage
+date: 2026/10/06
+logsource:
+  product: aws
+  service: config
+detection:
+  iam_policy_deleted:
+    resourceType: 'AWS::IAM::Policy'
+    configurationItemStatus: 'ResourceDeleted'
+  security_group_opened:
+    resourceType: 'AWS::EC2::SecurityGroup'
+    cidrIp: '0.0.0.0/0'
+  cloudtrail_deleted:
+    resourceType: 'AWS::CloudTrail::Trail'
+    configurationItemStatus: 'ResourceDeleted'
+  condition: iam_policy_deleted or security_group_opened or cloudtrail_deleted
+falsepositives:
+  - Planned IAM policy consolidation (correlate with a change ticket)
+  - Security group opened to 0.0.0.0/0 for a genuinely public-facing service
+  - CloudTrail trail consolidation down to a single organization trail
+level: critical
+tags:
+  - attack.defense_evasion
+  - attack.t1562.001
+  - attack.t1562.007
+  - attack.t1562.008
