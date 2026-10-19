@@ -27,10 +27,10 @@ nothing ships that doesn't provably fire. It's the difference between a paper ru
 | `LTR-0004` | [Detect Legacy-Auth MFA Bypass in Azure AD Sign-In Logs](https://logtriage.app/rules/azure-legacy-auth-mfa-bypass/) | Azure AD Sign-In Logs | T1078.004, T1556 | high |
 | `LTR-0023` | [Detect Encoded PowerShell, Mimikatz, and Watchlist Alerts in Carbon Black EDR](https://logtriage.app/rules/carbonblack-credential-dumping-encoded-powershell/) | Carbon Black | T1003.001, T1059.001 | critical |
 | `LTR-0024` | [Detect High-Severity Threat Prevention Blocks in CEF Firewall Logs (Palo Alto PAN-OS)](https://logtriage.app/rules/cef-firewall-threat-prevention-block/) | CEF (Common Event Format) | T1190, T1071 | high |
-| `LTR-0025` | [Detect Threat Prevention Blocks and Scan Bursts in Cisco ASA / FTD Logs](https://logtriage.app/rules/cisco-asa-threat-prevention-block/) | Cisco ASA / FTD | T1595.001, T1071.001, T1190 | high |
+| `LTR-0025` | [Detect Botnet Traffic Filter Blacklist Hits in Cisco ASA Logs](https://logtriage.app/rules/cisco-asa-botnet-traffic-filter/) | Cisco ASA / FTD | T1071 | high |
 | `LTR-0010` | [Detect Path Traversal & Sensitive-File Recon in Cloudflare Logs](https://logtriage.app/rules/cloudflare-path-traversal-recon/) | Cloudflare Logs | T1190, T1083, T1595.001 | high |
 | `LTR-0002` | [Detect IAM Privilege Escalation in AWS CloudTrail](https://logtriage.app/rules/cloudtrail-iam-privilege-escalation/) | AWS CloudTrail | T1098, T1078.004, T1484 | high |
-| `LTR-0026` | [Detect Cobalt Strike Beacons, Mimikatz, and Encoded PowerShell in CrowdStrike Falcon Detections](https://logtriage.app/rules/crowdstrike-cobalt-strike-mimikatz-encoded-powershell/) | CrowdStrike Falcon | T1059.001, T1003.001, T1071.001 | critical |
+| `LTR-0026` | [Detect Encoded PowerShell Commands in CrowdStrike Falcon Process Events](https://logtriage.app/rules/crowdstrike-encoded-powershell/) | CrowdStrike Falcon | T1059.001, T1027.010 | medium |
 | `LTR-0013` | [Detect MFA Fatigue and Bypass Abuse in Duo Security Logs](https://logtriage.app/rules/duo-mfa-fatigue-bypass/) | Duo Security | T1621, T1078.004, T1556.006 | critical |
 | `LTR-0008` | [Detect IAM Privilege Escalation in GCP Cloud Audit Logs](https://logtriage.app/rules/gcp-iam-privilege-escalation/) | GCP Cloud Audit Log | T1098, T1078.004 | high |
 | `LTR-0014` | [Detect GitHub Organization Takeover and Backdooring in Audit Logs](https://logtriage.app/rules/github-audit-org-takeover/) | GitHub Audit Log | T1098, T1195.002, T1562.001, T1537 | critical |

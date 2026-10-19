@@ -1,0 +1,43 @@
+# Detect Encoded PowerShell Commands in CrowdStrike Falcon Process Events
+# Rule ID: LTR-0026
+# Source + explanation: https://logtriage.app/rules/crowdstrike-encoded-powershell/
+# Validated against a real sample log (malicious/crowdstrike_detections.json): fires on the malicious sample, silent on the benign one.
+
+title: Encoded PowerShell Command in CrowdStrike Falcon Process Events
+id: 56e5fdb9-ffaa-4f19-a4c7-a2b1ad59b59f
+status: experimental
+description: >
+  Detects a process start (ProcessRollup2) whose command line runs PowerShell
+  with -EncodedCommand or one of the short forms PowerShell accepts for it.
+  The flag takes a base64 string, so the command that actually runs cannot be
+  read in the log. Attackers use it to hide download cradles and in-memory
+  payloads from simple string matching.
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+  - https://attack.mitre.org/techniques/T1027/010/
+author: LogTriage
+date: 2026/10/19
+logsource:
+  product: crowdstrike
+  service: fdr
+detection:
+  process_start:
+    event_simpleName: 'ProcessRollup2'
+    CommandLine|contains: 'powershell'
+  encoded_flag:
+    CommandLine|contains:
+      - ' -e '
+      - ' -ec '
+      - ' -en '
+      - ' -enc '
+      - ' -encodedcommand '
+  condition: process_start and encoded_flag
+falsepositives:
+  - Deployment and management tools that pass scripts as base64
+  - Installers and administrator scripts using -EncodedCommand on purpose
+level: medium
+tags:
+  - attack.execution
+  - attack.t1059.001
+  - attack.defense_evasion
+  - attack.t1027.010

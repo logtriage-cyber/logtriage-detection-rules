@@ -1,0 +1,37 @@
+# Detect Botnet Traffic Filter Blacklist Hits in Cisco ASA Logs
+# Rule ID: LTR-0025
+# Source + explanation: https://logtriage.app/rules/cisco-asa-botnet-traffic-filter/
+# Validated against a real sample log (malicious/cisco_asa_attack.log): fires on the malicious sample, silent on the benign one.
+
+title: Cisco ASA Botnet Traffic Filter Blacklist Hit (High Threat Level)
+id: f7504077-63ed-401a-a120-f5aec2ed5d0b
+status: experimental
+description: >
+  Detects the Cisco ASA Botnet Traffic Filter (Dynamic Filter) matching a
+  connection against its blacklist at threat level high or very-high. The
+  33800x message IDs are the filter's blacklist matches. The ID is matched
+  without its severity digit, because administrators can change the logging
+  level of any ASA message.
+references:
+  - https://attack.mitre.org/techniques/T1071/
+author: LogTriage
+date: 2026/10/19
+logsource:
+  product: cisco
+  service: asa
+detection:
+  blacklist_hit:
+    message|contains: '-33800'
+  high_threat:
+    message|contains:
+      - 'threat-level: high'
+      - 'threat-level: very-high'
+  condition: blacklist_hit and high_threat
+falsepositives:
+  - Shared hosting or CDN addresses listed because of another tenant
+  - Stale blacklist entries for cleaned-up infrastructure
+  - Sandboxes or enrichment hosts that contact known-bad domains on purpose
+level: high
+tags:
+  - attack.command_and_control
+  - attack.t1071
