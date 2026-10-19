@@ -1,0 +1,46 @@
+# Detect High-Severity Threat Prevention Blocks in CEF Firewall Logs (Palo Alto PAN-OS)
+# Rule ID: LTR-0024
+# Source + explanation: https://logtriage.app/rules/cef-firewall-threat-prevention-block/
+# Validated against a real sample log (malicious/cef_firewall_attack.log): fires on the malicious sample, silent on the benign one.
+
+title: CEF Firewall — High-Severity Threat Prevention Block
+id: 3a7c9e02-5d14-4f6b-8e2a-0b9f4d1c6a73
+status: experimental
+description: >
+  Detects a next-generation firewall's own threat-prevention engine terminating
+  a connection it classified as a high-severity attack — Device Event Class ID
+  beginning with "threat/" at CEF severity 7 or higher, with the action set to
+  drop or block. This is not raw traffic volume or a generic deny; it is the
+  firewall's signature engine confirming the request matched a known attack
+  pattern (SQL injection, brute force, port scan, command-and-control, or
+  exfiltration) before stopping it.
+references:
+  - https://attack.mitre.org/techniques/T1190/
+  - https://attack.mitre.org/techniques/T1071/
+author: LogTriage
+date: 2026/10/19
+logsource:
+  product: paloalto
+  category: firewall
+detection:
+  threat_prevention_hit:
+    cat|startswith: 'threat/'
+    severity:
+      - '7'
+      - '8'
+      - '9'
+      - '10'
+  blocked:
+    act:
+      - 'drop'
+      - 'block'
+  condition: threat_prevention_hit and blocked
+falsepositives:
+  - Sanctioned internal scanner/pentest tripping threat-prevention signatures
+  - An overly aggressive custom signature misfiring on legitimate traffic
+level: high
+tags:
+  - attack.initial_access
+  - attack.t1190
+  - attack.command_and_control
+  - attack.t1071
