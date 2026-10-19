@@ -1,0 +1,46 @@
+# Detect Threat Prevention Blocks and Scan Bursts in Cisco ASA / FTD Logs
+# Rule ID: LTR-0025
+# Source + explanation: https://logtriage.app/rules/cisco-asa-threat-prevention-block/
+# Validated against a real sample log (malicious/cisco_asa_attack.log): fires on the malicious sample, silent on the benign one.
+
+title: Cisco ASA Threat Prevention Block (Botnet, AMP, Spoof, Scan Burst)
+id: f7504077-63ed-401a-a120-f5aec2ed5d0b
+status: experimental
+description: >
+  Detects four distinct high-signal block events in Cisco ASA / FTD syslog: a
+  Dynamic Filter hit against a known botnet-blacklisted IP (%ASA-2-338001), an
+  AMP block of a file transfer (%ASA-1-430003), an IP spoofing detection
+  (%ASA-2-106016), and a burst of 3 or more inbound connection denies from the
+  same source against a single port (%ASA-2-106001), the signature of a SYN
+  scan. Any one of these indicates active malicious traffic the firewall is
+  already blocking.
+references:
+  - https://attack.mitre.org/techniques/T1595/001/
+  - https://attack.mitre.org/techniques/T1071/001/
+author: LogTriage
+date: 2026/10/19
+logsource:
+  product: cisco
+  service: asa
+detection:
+  selection_botnet_block:
+    message|contains: '%ASA-2-338001'
+  selection_amp_block:
+    message|contains: '%ASA-1-430003'
+  selection_ip_spoof:
+    message|contains: '%ASA-2-106016'
+  selection_denied_scan:
+    message|contains: '%ASA-2-106001'
+  condition: selection_botnet_block or selection_amp_block or selection_ip_spoof or (selection_denied_scan | count() >= 3)
+falsepositives:
+  - Single deny from a host briefly probing one closed port
+  - Botnet blocklist hit on a shared IP cleaned up after prior compromise
+  - AMP file-type block on a legitimate executable matching a broad custom signature
+level: high
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+  - attack.command_and_control
+  - attack.t1071.001
+  - attack.initial_access
+  - attack.t1190
