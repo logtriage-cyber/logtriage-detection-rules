@@ -15,16 +15,17 @@ references:
   - https://attack.mitre.org/techniques/T1098/
 author: LogTriage
 date: 2026/07/01
+modified: 2026/10/20
 logsource:
   product: gcp
   service: gcp.audit
 detection:
   selection:
-    protoPayload.methodName:
+    protoPayload.methodName|endswith:
       - 'SetIamPolicy'
-      - 'google.iam.admin.v1.IAM.CreateServiceAccountKey'
-      - 'google.iam.admin.v1.IAM.CreateRole'
-      - 'google.iam.admin.v1.IAM.CreateServiceAccount'
+      - '.CreateServiceAccountKey'
+      - '.CreateRole'
+      - '.CreateServiceAccount'
   filter_known_admins:
     protoPayload.authenticationInfo.principalEmail|endswith:
       - '@terraform-ci.iam.gserviceaccount.com'

@@ -19,6 +19,7 @@ references:
   - https://attack.mitre.org/techniques/T1190/
 author: LogTriage
 date: 2026/09/18
+modified: 2026/10/20
 logsource:
   product: zeek
   service: http
@@ -30,6 +31,8 @@ detection:
       - '/admin/config.php'
   sqli_payload:
     uri|contains:
+      - 'UNION%20SELECT'
+      - 'UNION+SELECT'
       - 'UNION SELECT'
   attack_tool:
     user_agent|contains:
@@ -43,5 +46,6 @@ level: high
 tags:
   - attack.reconnaissance
   - attack.t1595.002
+  - attack.t1595.003
   - attack.initial_access
   - attack.t1190

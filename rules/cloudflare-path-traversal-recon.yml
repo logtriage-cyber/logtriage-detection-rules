@@ -15,12 +15,16 @@ references:
   - https://attack.mitre.org/techniques/T1190/
 author: LogTriage
 date: 2026/07/01
+modified: 2026/10/20
 logsource:
   product: cloudflare
 detection:
   selection:
     ClientRequestPath|contains:
       - '../'
+      - '..%2f'
+      - '%2e%2e/'
+      - '%2e%2e%2f'
       - '/etc/passwd'
       - '/etc/shadow'
       - '/.env'
@@ -30,8 +34,9 @@ detection:
 falsepositives:
   - Authorized scanners / bug-bounty researchers (allowlist source IPs)
   - Rare legitimate paths containing encoded '..' (inspect first)
-level: high
+level: medium
 tags:
   - attack.initial_access
-  - attack.discovery
   - attack.t1190
+  - attack.reconnaissance
+  - attack.t1595.003

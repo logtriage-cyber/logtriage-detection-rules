@@ -15,6 +15,7 @@ references:
   - https://attack.mitre.org/techniques/T1046/
 author: LogTriage
 date: 2026/06/23
+modified: 2026/10/20
 logsource:
   product: aws
   service: vpcflow

@@ -1,54 +1,39 @@
-# Detect GitHub Organization Takeover and Backdooring in Audit Logs
+# Detect Two-Factor Authentication Being Disabled in GitHub Audit Logs
 # Rule ID: LTR-0014
 # Source + explanation: https://logtriage.app/rules/github-audit-org-takeover/
 # Validated against a real sample log (malicious/github_audit_attack.json): fires on the malicious sample, silent on the benign one.
 
-title: GitHub Organization Takeover and Backdoor Persistence
+title: GitHub Two-Factor Authentication Disabled
 id: 9e2f7b58-4c31-42a6-b7d9-05e8a1c36f4d
 status: experimental
 description: >
-  Detects the action sequence of a GitHub organization takeover. An attacker who
-  compromises an owner account disables the 2FA requirement to weaken recovery,
-  adds a backdoor member for persistence, plants a webhook to exfiltrate source
-  on every push, and may destroy repositories to cover tracks or extort. Each
-  action is individually rare and administratively significant.
+  Detects two-factor authentication being removed in GitHub: the organization's
+  two-factor requirement disabled (org.disable_two_factor_requirement, in the
+  organization audit log) or two-factor authentication disabled for a user
+  account (two_factor_authentication.disabled, in enterprise audit logs and the
+  user's security log). Either makes a stolen password enough to sign in.
 references:
-  - https://attack.mitre.org/techniques/T1098/
-  - https://attack.mitre.org/techniques/T1195/002/
+  - https://docs.github.com/en/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/audit-log-events-for-your-organization
+  - https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/security-log-events
+  - https://attack.mitre.org/techniques/T1556/006/
 author: LogTriage
 date: 2026/08/04
+modified: 2026/10/20
 logsource:
   product: github
   service: audit
 detection:
-  mfa_weakened:
+  two_factor_removed:
     action:
-      - 'two_factor_authentication.disabled'
       - 'org.disable_two_factor_requirement'
-  persistence_added:
-    action:
-      - 'org.add_member'
-      - 'org.update_member'
-      - 'org.invite_member'
-  exfil_channel:
-    action:
-      - 'hook.create'
-      - 'integration_installation.create'
-  destructive:
-    action:
-      - 'repo.destroy'
-      - 'org.remove_member'
-  timeframe: 30m
-  condition: (mfa_weakened or destructive) or (persistence_added and exfil_channel)
+      - 'two_factor_authentication.disabled'
+  condition: two_factor_removed
 falsepositives:
-  - Planned org security-policy change during a migration (ticketed, by an owner)
-  - Legitimate CI/CD webhook setup pointing at a known internal endpoint
-  - Repository archival or cleanup during offboarding
-level: critical
+  - Planned organization two-factor policy change (correlate with a ticket)
+  - A user moving two-factor authentication to a new device
+level: high
 tags:
-  - attack.persistence
-  - attack.t1098
+  - attack.credential_access
   - attack.defense_evasion
-  - attack.t1562.001
-  - attack.initial_access
-  - attack.t1195.002
+  - attack.persistence
+  - attack.t1556.006

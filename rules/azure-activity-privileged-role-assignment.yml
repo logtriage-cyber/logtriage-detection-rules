@@ -1,0 +1,42 @@
+# Detect Owner and User Access Administrator Role Assignments in Azure Activity Logs
+# Rule ID: LTR-0022
+# Source + explanation: https://logtriage.app/rules/azure-activity-privileged-role-assignment/
+# Validated against a real sample log (malicious/azure_activity_attack.json): fires on the malicious sample, silent on the benign one.
+
+title: Azure Owner or User Access Administrator Role Assignment
+id: 23e56145-36f5-4e22-b3d5-f8df05fba9a6
+status: experimental
+description: >
+  Detects an attempt to assign one of the two Azure built-in roles that grant
+  control over role assignments themselves: Owner and User Access
+  Administrator. The Activity log records the role in the request body of the
+  Started event of Microsoft.Authorization/roleAssignments/write, which is
+  where Microsoft's own alert query for privileged role assignments reads it.
+references:
+  - https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-alert
+  - https://attack.mitre.org/techniques/T1098/003/
+author: LogTriage
+date: 2026/10/12
+modified: 2026/10/20
+logsource:
+  product: azure
+  service: activitylogs
+detection:
+  role_assignment_started:
+    operationName: 'Microsoft.Authorization/roleAssignments/write'
+    status:
+      - 'Started'
+      - 'Start'
+  privileged_role:
+    properties.requestbody|contains:
+      - '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
+      - '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
+  condition: role_assignment_started and privileged_role
+falsepositives:
+  - Planned privileged grants by a known IAM administrator
+  - Subscription bootstrap automation assigning Owner to a platform identity
+level: high
+tags:
+  - attack.persistence
+  - attack.privilege_escalation
+  - attack.t1098.003

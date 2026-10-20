@@ -7,16 +7,17 @@ title: Duo MFA Fatigue, Fraud Report, and Bypass Abuse
 id: 6d1a8f34-2c97-4e05-b8d6-91f7a3e4c25b
 status: experimental
 description: >
-  Detects abuse of the MFA layer in Duo. Three distinct high-signal conditions:
-  a user explicitly marking an authentication as fraudulent, Duo flagging a push
-  as anomalous (the push-bombing signature), and an authentication succeeding via
-  a bypass code rather than a real factor. A FRAUD report is a user telling you
-  directly that an attacker holds their password.
+  Detects attacks on the second factor in Duo authentication logs: a user
+  reporting a push as fraud, Duo's own anomalous-push (push harassment)
+  detection, and a login that succeeded with a bypass code or for a user in
+  bypass status instead of a real second factor. Any of these means someone
+  already has, or is trying to use, the user's password.
 references:
   - https://attack.mitre.org/techniques/T1621/
   - https://attack.mitre.org/techniques/T1556/006/
 author: LogTriage
 date: 2026/08/04
+modified: 2026/10/20
 logsource:
   product: duo
   service: authentication
@@ -24,18 +25,18 @@ detection:
   user_reported_fraud:
     result: 'FRAUD'
     reason: 'user_marked_fraud'
-  push_bombing:
-    result: 'DENY'
+  push_harassment:
     reason: 'anomalous_push'
   bypass_used:
-    factor: 'bypass'
-    result: 'ALLOW'
-  condition: user_reported_fraud or push_bombing or bypass_used
+    - factor: 'bypass_code'
+      result: 'SUCCESS'
+    - reason: 'bypass_user'
+  condition: user_reported_fraud or push_harassment or bypass_used
 falsepositives:
-  - Single unexpected DENY from a background app re-authenticating
   - Helpdesk-issued bypass code during phone replacement (correlate with a ticket)
-  - Push timeout and retry caused by a flaky mobile connection
-level: critical
+  - User temporarily set to bypass status by an administrator
+  - A push reported as fraud by mistake
+level: high
 tags:
   - attack.credential_access
   - attack.t1621

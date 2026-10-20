@@ -19,6 +19,7 @@ references:
   - https://attack.mitre.org/techniques/T1110/003/
 author: LogTriage
 date: 2026/08/04
+modified: 2026/10/20
 logsource:
   product: linux
   service: sshd
@@ -33,7 +34,7 @@ falsepositives:
   - Stale key or expired password retried in a loop by one account
   - Expired credential on a monitoring or backup agent (allowlist its IP)
   - Background internet scanning on an exposed host with no fail2ban
-level: high
+level: medium
 tags:
   - attack.credential_access
   - attack.t1110.001

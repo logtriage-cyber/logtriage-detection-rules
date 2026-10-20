@@ -1,44 +1,49 @@
-# Detect High-Severity Threat Prevention Blocks in CEF Firewall Logs (Palo Alto PAN-OS)
+# Detect Blocked Exploits, Spyware and Malware in Palo Alto PAN-OS CEF Logs
 # Rule ID: LTR-0024
 # Source + explanation: https://logtriage.app/rules/cef-firewall-threat-prevention-block/
 # Validated against a real sample log (malicious/cef_firewall_attack.log): fires on the malicious sample, silent on the benign one.
 
-title: CEF Firewall — High-Severity Threat Prevention Block
+title: Palo Alto PAN-OS Threat Blocked (Exploit, Spyware or Malware)
 id: 3a7c9e02-5d14-4f6b-8e2a-0b9f4d1c6a73
 status: experimental
 description: >
-  Detects a next-generation firewall's own threat-prevention engine terminating
-  a connection it classified as a high-severity attack — Device Event Class ID
-  beginning with "threat/" at CEF severity 7 or higher, with the action set to
-  drop or block. This is not raw traffic volume or a generic deny; it is the
-  firewall's signature engine confirming the request matched a known attack
-  pattern (SQL injection, brute force, port scan, command-and-control, or
-  exfiltration) before stopping it.
+  Detects a Palo Alto PAN-OS threat log in CEF where the firewall matched a
+  vulnerability exploit, spyware (command-and-control) or malware signature and
+  stopped the traffic. In PAN-OS CEF the header's Device Event Class ID carries
+  the threat subtype and its Name is THREAT; the act key carries the action.
+  Field names below follow Microsoft Sentinel's CommonSecurityLog table.
 references:
+  - https://docs.paloaltonetworks.com/resources/cef
   - https://attack.mitre.org/techniques/T1190/
   - https://attack.mitre.org/techniques/T1071/
 author: LogTriage
 date: 2026/10/19
+modified: 2026/10/20
 logsource:
   product: paloalto
-  category: firewall
+  service: threat
 detection:
-  threat_prevention_hit:
-    cat|startswith: 'threat/'
-    severity:
-      - '7'
-      - '8'
-      - '9'
-      - '10'
+  threat_match:
+    DeviceVendor: 'Palo Alto Networks'
+    Activity: 'THREAT'
+    DeviceEventClassID:
+      - 'vulnerability'
+      - 'spyware'
+      - 'virus'
+      - 'wildfire-virus'
   blocked:
-    act:
+    DeviceAction:
       - 'drop'
-      - 'block'
-  condition: threat_prevention_hit and blocked
+      - 'drop-all-packets'
+      - 'reset-both'
+      - 'reset-client'
+      - 'reset-server'
+      - 'block-ip'
+  condition: threat_match and blocked
 falsepositives:
-  - Sanctioned internal scanner/pentest tripping threat-prevention signatures
-  - An overly aggressive custom signature misfiring on legitimate traffic
-level: high
+  - Sanctioned scanner or penetration test from a known source address
+  - A signature misfiring on legitimate traffic that resembles attack syntax
+level: medium
 tags:
   - attack.initial_access
   - attack.t1190

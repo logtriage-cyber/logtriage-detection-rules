@@ -1,4 +1,4 @@
-# Detect SQL Injection and Follow-on Data Exfiltration in nginx Access Logs
+# Detect SQL Injection Probing and sqlmap in nginx Access Logs
 # Rule ID: LTR-0015
 # Source + explanation: https://logtriage.app/rules/nginx-sqli-data-exfiltration/
 # Validated against a real sample log (malicious/nginx_sqli_exfiltration.log): fires on the malicious sample, silent on the benign one.
@@ -10,8 +10,9 @@ description: >
   Detects SQL injection attempts in web-server access logs via two independent
   signals: classic injection payloads in the query string (UNION SELECT,
   boolean-based AND 1=1 / AND 1=2 pairs, ORDER BY column probing, time-based
-  SLEEP, and the URL-encoded quote-OR pattern), and the user-agent strings of
-  automated injection tools. Either alone justifies an alert; together they
+  SLEEP, and the quote-OR tautology), and the user-agent strings of automated
+  injection tools. Payloads are matched as clients send them (spaces encoded
+  as %20 or +) and decoded, for pipelines that decode URIs before storage. Either alone justifies an alert; together they
   indicate an active sqlmap-style campaign. Watch response sizes on requests
   from the same source afterwards — a large 200 following the probes is the
   exfiltration.
@@ -20,17 +21,26 @@ references:
   - https://attack.mitre.org/techniques/T1595/002/
 author: LogTriage
 date: 2026/09/18
+modified: 2026/10/20
 logsource:
   category: webserver
 detection:
   sqli_payload:
     cs-uri-query|contains:
+      - 'UNION%20SELECT'
+      - 'UNION+SELECT'
       - 'UNION SELECT'
+      - '%20AND%201=1'
+      - '%20AND%201=2'
+      - '+AND+1=1'
       - ' AND 1=1'
-      - ' AND 1=2'
+      - 'ORDER%20BY%201--'
+      - 'ORDER+BY+1--'
       - 'ORDER BY 1--'
       - 'SLEEP('
+      - 'SLEEP%28'
       - '%27%20OR%20'
+      - "' OR "
   sqli_tool:
     c-useragent|contains:
       - 'sqlmap'
