@@ -1,0 +1,36 @@
+# Detect SSH Brute Force Authentication Failures in Linux auditd Logs
+# Rule ID: LTR-0027
+# Source + explanation: https://logtriage.app/rules/detect-ssh-brute-force-in-linux-auditd-logs/
+# Validated against a real sample log (malicious/auditd_ssh_bruteforce.log): fires on the malicious sample, silent on the benign one.
+
+title: SSH Brute Force Authentication Failures in auditd
+id: 319cdc1d-145d-46c9-8976-d0cd9bcbb1c7
+status: experimental
+description: >
+  Detects a burst of failed SSH authentication attempts recorded by auditd's
+  PAM instrumentation for sshd. A single connection attempt that fails
+  produces one or more audit records (USER_LOGIN, USER_ERR, USER_AUTH)
+  carrying exe="/usr/sbin/sshd" and res=failed; a sustained run of these
+  from one source address in a short window is the signature of an
+  automated SSH brute-force campaign.
+references:
+  - https://attack.mitre.org/techniques/T1110/001/
+  - https://man7.org/linux/man-pages/man8/auditd.8.html
+author: LogTriage
+date: 2026/10/26
+logsource:
+  product: linux
+  service: auditd
+detection:
+  selection:
+    exe: '/usr/sbin/sshd'
+    res: 'failed'
+  timeframe: 5m
+  condition: selection | count() by addr >= 10
+falsepositives:
+  - Misconfigured client or expired keypair producing legitimate failure bursts
+  - Authentication testing by vulnerability scanners or monitoring tools
+level: high
+tags:
+  - attack.credential_access
+  - attack.t1110.001
