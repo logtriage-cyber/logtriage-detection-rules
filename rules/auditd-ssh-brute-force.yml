@@ -1,6 +1,6 @@
 # Detect SSH Brute Force Authentication Failures in Linux auditd Logs
 # Rule ID: LTR-0027
-# Source + explanation: https://logtriage.app/rules/detect-ssh-brute-force-in-linux-auditd-logs/
+# Source + explanation: https://logtriage.app/rules/auditd-ssh-brute-force/
 # Validated against a real sample log (malicious/auditd_ssh_bruteforce.log): fires on the malicious sample, silent on the benign one.
 
 title: SSH Brute Force Authentication Failures in auditd

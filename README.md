@@ -19,6 +19,7 @@ nothing ships that doesn't provably fire. It's the difference between a paper ru
 
 | ID | Rule | Log source | MITRE ATT&CK | Severity |
 |----|------|-----------|--------------|----------|
+| `LTR-0027` | [Detect SSH Brute Force Authentication Failures in Linux auditd Logs](https://logtriage.app/rules/auditd-ssh-brute-force/) | Linux audit log (auditd) | T1110.001, T1110 | high |
 | `LTR-0011` | [Detect SSH Brute Force and User Enumeration in Linux auth.log](https://logtriage.app/rules/authlog-ssh-brute-force/) | Linux auth.log / secure | T1110.001, T1110.003 | medium |
 | `LTR-0019` | [Detect Web Attack Tools (sqlmap, Nikto, Nmap) in AWS ALB / ELB Access Logs](https://logtriage.app/rules/aws-alb-scanner-scripted-access/) | AWS ALB / ELB | T1595.002, T1190 | medium |
 | `LTR-0020` | [Detect CloudTrail Deletion and All-Traffic Security Groups in AWS Config History](https://logtriage.app/rules/aws-config-security-control-tampering/) | AWS Config | T1562.007, T1562.008 | high |
@@ -31,13 +32,12 @@ nothing ships that doesn't provably fire. It's the difference between a paper ru
 | `LTR-0010` | [Detect Path Traversal & Sensitive-File Recon in Cloudflare Logs](https://logtriage.app/rules/cloudflare-path-traversal-recon/) | Cloudflare Logs | T1190, T1595.003 | medium |
 | `LTR-0002` | [Detect IAM Privilege Escalation in AWS CloudTrail](https://logtriage.app/rules/cloudtrail-iam-privilege-escalation/) | AWS CloudTrail | T1098, T1078.004, T1484 | high |
 | `LTR-0026` | [Detect Encoded PowerShell Commands in CrowdStrike Falcon Process Events](https://logtriage.app/rules/crowdstrike-encoded-powershell/) | CrowdStrike Falcon | T1059.001, T1027.010 | medium |
-| `LTR-0027` | [Detect SSH Brute Force Authentication Failures in Linux auditd Logs](https://logtriage.app/rules/detect-ssh-brute-force-in-linux-auditd-logs/) | Linux audit log (auditd) | T1110.001, T1110 | high |
 | `LTR-0013` | [Detect MFA Fatigue and Bypass Abuse in Duo Security Logs](https://logtriage.app/rules/duo-mfa-fatigue-bypass/) | Duo Security | T1621, T1078.004, T1556.006 | high |
+| `LTR-0028` | [Detect Mimikatz Credential Dumping in Elastic Common Schema Process Logs](https://logtriage.app/rules/ecs-mimikatz-credential-dumping/) | Elastic Common Schema | T1003.001, T1003 | critical |
 | `LTR-0008` | [Detect IAM Privilege Escalation in GCP Cloud Audit Logs](https://logtriage.app/rules/gcp-iam-privilege-escalation/) | GCP Cloud Audit Log | T1098, T1078.004 | high |
 | `LTR-0014` | [Detect Two-Factor Authentication Being Disabled in GitHub Audit Logs](https://logtriage.app/rules/github-audit-org-takeover/) | GitHub Audit Log | T1556.006 | high |
 | `LTR-0017` | [Detect Admin Grants and 2-Step Verification Removal in Google Workspace Audit Logs](https://logtriage.app/rules/google-workspace-admin-takeover/) | Google Workspace | T1098, T1556.006, T1078.004 | high |
 | `LTR-0009` | [Detect Kubernetes Secret Exfiltration in Audit Logs](https://logtriage.app/rules/k8s-secret-exfiltration/) | Kubernetes Audit Log | T1552.007, T1078 | high |
-| `LTR-0028` | [Detect Mimikatz Credential Dumping in Elastic Common Schema Process Logs](https://logtriage.app/rules/ltr-0028-ecs-credential-dumping/) | Elastic Common Schema | T1003.001, T1003 | critical |
 | `LTR-0006` | [Detect Business Email Compromise via Forwarding and Deleting Inbox Rules (Microsoft 365)](https://logtriage.app/rules/m365-bec-inbox-rule/) | Microsoft 365 Unified Audit Log | T1114.003, T1564.008 | high |
 | `LTR-0001` | [Detect Credential Stuffing Against Authentication Endpoints (nginx / web logs)](https://logtriage.app/rules/nginx-credential-stuffing/) | nginx / Apache access logs | T1110.004, T1110.001 | high |
 | `LTR-0015` | [Detect SQL Injection Probing and sqlmap in nginx Access Logs](https://logtriage.app/rules/nginx-sqli-data-exfiltration/) | nginx / Apache access logs | T1190, T1595.002 | high |
