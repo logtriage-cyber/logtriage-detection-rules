@@ -1,0 +1,41 @@
+# Detect UTM IPS and Antivirus Blocks in FortiGate Logs
+# Rule ID: LTR-0030
+# Source + explanation: https://logtriage.app/rules/fortigate-utm-ips-virus-block/
+# Validated against a real sample log (malicious/fortigate_attack.log): fires on the malicious sample, silent on the benign one.
+
+title: FortiGate UTM IPS and Antivirus Block
+id: e1d746c8-2160-4379-809d-41f8c0b3db2a
+status: experimental
+description: >
+  Detects FortiGate UTM security profiles actively blocking traffic: an IPS
+  signature match with action block, or an antivirus engine detection with
+  action blocked. Both mean the FortiGate's own inspection engines already
+  identified and stopped malicious content, not merely logged it.
+references:
+  - https://docs.fortinet.com/document/fortigate/7.4.0/log-message-reference
+  - https://attack.mitre.org/techniques/T1190/
+author: LogTriage
+date: 2026/11/02
+logsource:
+  product: fortios
+  category: firewall
+detection:
+  selection_ips:
+    type: 'utm'
+    subtype: 'ips'
+    action: 'block'
+  selection_virus:
+    type: 'utm'
+    subtype: 'virus'
+    action: 'blocked'
+  condition: selection_ips or selection_virus
+falsepositives:
+  - Authorized vulnerability scanning tripping an IPS signature
+  - EICAR test files or phishing-simulation attachments caught by antivirus
+  - Overly aggressive custom IPS signature
+level: high
+tags:
+  - attack.initial_access
+  - attack.t1190
+  - attack.command_and_control
+  - attack.t1071.001

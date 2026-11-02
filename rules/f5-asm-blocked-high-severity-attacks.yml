@@ -1,0 +1,37 @@
+# Detect Blocked Critical and High Severity Attacks in F5 BIG-IP ASM Logs
+# Rule ID: LTR-0029
+# Source + explanation: https://logtriage.app/rules/f5-asm-blocked-high-severity-attacks/
+# Validated against a real sample log (malicious/f5_asm_attacks.log): fires on the malicious sample, silent on the benign one.
+
+title: F5 ASM Blocked Critical/High Severity Violation
+id: 14f5add8-8e4d-481a-9e13-49490cd0175c
+status: experimental
+description: >
+  Detects requests that F5 BIG-IP ASM blocked and rated Critical or High
+  severity. ASM assigns a severity and a violation_rating to every request it
+  evaluates against the active policy; request_status=blocked with a
+  Critical or High severity means the policy judged the request an attack
+  (SQL injection, path traversal, cross-site scripting, brute force) and
+  stopped it before it reached the application.
+references:
+  - https://attack.mitre.org/techniques/T1190/
+  - https://techdocs.f5.com/en-us/bigip-15-1-0/big-ip-asm-implementations/configuring-asm-event-logging.html
+author: LogTriage
+date: 2026/11/02
+logsource:
+  product: f5
+  service: asm
+detection:
+  selection:
+    request_status: 'blocked'
+    severity:
+      - 'Critical'
+      - 'High'
+  condition: selection
+falsepositives:
+  - New ASM policy in blocking mode before signatures are tuned to the application
+  - Authorized penetration test or scan not excluded from the policy
+level: high
+tags:
+  - attack.initial_access
+  - attack.t1190

@@ -15,7 +15,7 @@ Most rule collections are published untested. Here, a build step confirms each r
 literals actually appear in a real malicious sample (and not in the matching benign sample), so
 nothing ships that doesn't provably fire. It's the difference between a paper rule and a working one.
 
-## Rules (28)
+## Rules (30)
 
 | ID | Rule | Log source | MITRE ATT&CK | Severity |
 |----|------|-----------|--------------|----------|
@@ -34,6 +34,8 @@ nothing ships that doesn't provably fire. It's the difference between a paper ru
 | `LTR-0026` | [Detect Encoded PowerShell Commands in CrowdStrike Falcon Process Events](https://logtriage.app/rules/crowdstrike-encoded-powershell/) | CrowdStrike Falcon | T1059.001, T1027.010 | medium |
 | `LTR-0013` | [Detect MFA Fatigue and Bypass Abuse in Duo Security Logs](https://logtriage.app/rules/duo-mfa-fatigue-bypass/) | Duo Security | T1621, T1078.004, T1556.006 | high |
 | `LTR-0028` | [Detect Mimikatz Credential Dumping in Elastic Common Schema Process Logs](https://logtriage.app/rules/ecs-mimikatz-credential-dumping/) | Elastic Common Schema | T1003.001, T1003 | critical |
+| `LTR-0029` | [Detect Blocked Critical and High Severity Attacks in F5 BIG-IP ASM Logs](https://logtriage.app/rules/f5-asm-blocked-high-severity-attacks/) | F5 BIG-IP ASM | T1190 | high |
+| `LTR-0030` | [Detect UTM IPS and Antivirus Blocks in FortiGate Logs](https://logtriage.app/rules/fortigate-utm-ips-virus-block/) | FortiGate | T1190, T1071.001 | high |
 | `LTR-0008` | [Detect IAM Privilege Escalation in GCP Cloud Audit Logs](https://logtriage.app/rules/gcp-iam-privilege-escalation/) | GCP Cloud Audit Log | T1098, T1078.004 | high |
 | `LTR-0014` | [Detect Two-Factor Authentication Being Disabled in GitHub Audit Logs](https://logtriage.app/rules/github-audit-org-takeover/) | GitHub Audit Log | T1556.006 | high |
 | `LTR-0017` | [Detect Admin Grants and 2-Step Verification Removal in Google Workspace Audit Logs](https://logtriage.app/rules/google-workspace-admin-takeover/) | Google Workspace | T1098, T1556.006, T1078.004 | high |
