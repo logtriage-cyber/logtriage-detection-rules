@@ -15,10 +15,11 @@ Most rule collections are published untested. Here, a build step confirms each r
 literals actually appear in a real malicious sample (and not in the matching benign sample), so
 nothing ships that doesn't provably fire. It's the difference between a paper rule and a working one.
 
-## Rules (30)
+## Rules (32)
 
 | ID | Rule | Log source | MITRE ATT&CK | Severity |
 |----|------|-----------|--------------|----------|
+| `LTR-0031` | [Detect HTTP Basic Auth Brute Force Against Admin Endpoints in Apache Error Logs](https://logtriage.app/rules/apache-error-admin-login-brute-force/) | Apache HTTP Server error log | T1110.001, T1110.003 | high |
 | `LTR-0027` | [Detect SSH Brute Force Authentication Failures in Linux auditd Logs](https://logtriage.app/rules/auditd-ssh-brute-force/) | Linux audit log (auditd) | T1110.001, T1110 | high |
 | `LTR-0011` | [Detect SSH Brute Force and User Enumeration in Linux auth.log](https://logtriage.app/rules/authlog-ssh-brute-force/) | Linux auth.log / secure | T1110.001, T1110.003 | medium |
 | `LTR-0019` | [Detect Web Attack Tools (sqlmap, Nikto, Nmap) in AWS ALB / ELB Access Logs](https://logtriage.app/rules/aws-alb-scanner-scripted-access/) | AWS ALB / ELB | T1595.002, T1190 | medium |
@@ -37,6 +38,7 @@ nothing ships that doesn't provably fire. It's the difference between a paper ru
 | `LTR-0029` | [Detect Blocked Critical and High Severity Attacks in F5 BIG-IP ASM Logs](https://logtriage.app/rules/f5-asm-blocked-high-severity-attacks/) | F5 BIG-IP ASM | T1190 | high |
 | `LTR-0030` | [Detect UTM IPS and Antivirus Blocks in FortiGate Logs](https://logtriage.app/rules/fortigate-utm-ips-virus-block/) | FortiGate | T1190, T1071.001 | high |
 | `LTR-0008` | [Detect IAM Privilege Escalation in GCP Cloud Audit Logs](https://logtriage.app/rules/gcp-iam-privilege-escalation/) | GCP Cloud Audit Log | T1098, T1078.004 | high |
+| `LTR-0032` | [Detect High-Volume API Scraping by Scripted Clients in Generic CSV API Logs](https://logtriage.app/rules/generic-csv-api-scraping/) | Generic CSV | T1119, T1213 | medium |
 | `LTR-0014` | [Detect Two-Factor Authentication Being Disabled in GitHub Audit Logs](https://logtriage.app/rules/github-audit-org-takeover/) | GitHub Audit Log | T1556.006 | high |
 | `LTR-0017` | [Detect Admin Grants and 2-Step Verification Removal in Google Workspace Audit Logs](https://logtriage.app/rules/google-workspace-admin-takeover/) | Google Workspace | T1098, T1556.006, T1078.004 | high |
 | `LTR-0009` | [Detect Kubernetes Secret Exfiltration in Audit Logs](https://logtriage.app/rules/k8s-secret-exfiltration/) | Kubernetes Audit Log | T1552.007, T1078 | high |

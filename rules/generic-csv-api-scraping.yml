@@ -1,0 +1,42 @@
+# Detect High-Volume API Scraping by Scripted Clients in Generic CSV API Logs
+# Rule ID: LTR-0032
+# Source + explanation: https://logtriage.app/rules/generic-csv-api-scraping/
+# Validated against a real sample log (malicious/generic_api_scraper.csv): fires on the malicious sample, silent on the benign one.
+
+title: High-Volume API Scraping by Scripted Client
+id: 862e8a71-38a3-4553-ba44-b52b1771a084
+status: experimental
+description: >
+  Detects a single source rapidly calling export, query, search and report
+  API endpoints with a non-browser, scripted user agent (python-requests),
+  returning successful responses. A handful of calls per minute from one
+  source to these endpoints with this client is consistent with automated
+  bulk data harvesting rather than normal interactive use of the API.
+references:
+  - https://attack.mitre.org/techniques/T1119/
+  - https://attack.mitre.org/techniques/T1213/
+author: LogTriage
+date: 2026/11/09
+logsource:
+  category: application
+  service: api
+detection:
+  selection:
+    user_agent|contains: 'python-requests'
+    path|contains:
+      - '/api/v1/export/'
+      - '/api/v1/query'
+      - '/api/v1/search'
+      - '/api/v1/reports'
+    status_code: 200
+  timeframe: 1m
+  condition: selection | count() by ip_address >= 5
+falsepositives:
+  - Scheduled internal job or ETL pipeline using python-requests on a fixed schedule
+  - QA or monitoring script paginating through the API
+  - Ad-hoc export run through a Python client during a migration
+level: medium
+tags:
+  - attack.collection
+  - attack.t1119
+  - attack.t1213

@@ -1,0 +1,36 @@
+# Detect HTTP Basic Auth Brute Force Against Admin Endpoints in Apache Error Logs
+# Rule ID: LTR-0031
+# Source + explanation: https://logtriage.app/rules/apache-error-admin-login-brute-force/
+# Validated against a real sample log (malicious/apache_error_attack.log): fires on the malicious sample, silent on the benign one.
+
+title: Apache mod_auth_basic Brute Force Against Protected Endpoint
+id: 542b7b94-6904-4213-9a57-260875d7d55b
+status: experimental
+description: >
+  Detects a burst of HTTP Basic authentication failures logged by mod_auth_basic
+  (AH01617 password mismatch, AH01618 user not found) from a single client
+  against a protected Apache path within a short window — the signature of a
+  brute-force or username-enumeration attack against an admin login.
+references:
+  - https://httpd.apache.org/docs/2.4/mod/mod_auth_basic.html
+  - https://attack.mitre.org/techniques/T1110/001/
+author: LogTriage
+date: 2026/11/09
+logsource:
+  product: apache
+  service: error
+detection:
+  selection:
+    message|contains:
+      - 'AH01617'
+      - 'AH01618'
+  timeframe: 5m
+  condition: selection | count() by client >= 10
+falsepositives:
+  - A user repeatedly mistyping their password against a protected admin path
+  - Many users behind a shared NAT or proxy egress IP hitting the same protected path
+level: high
+tags:
+  - attack.credential_access
+  - attack.t1110.001
+  - attack.t1110.003
