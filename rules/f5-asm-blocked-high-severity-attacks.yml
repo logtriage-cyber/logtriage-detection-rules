@@ -1,23 +1,24 @@
-# Detect Blocked Critical and High Severity Attacks in F5 BIG-IP ASM Logs
+# Detect Attacks Blocked by F5 BIG-IP ASM at Error Severity or Above
 # Rule ID: LTR-0029
 # Source + explanation: https://logtriage.app/rules/f5-asm-blocked-high-severity-attacks/
 # Validated against a real sample log (malicious/f5_asm_attacks.log): fires on the malicious sample, silent on the benign one.
 
-title: F5 ASM Blocked Critical/High Severity Violation
+title: F5 ASM Blocked Request at Error Severity or Above
 id: 14f5add8-8e4d-481a-9e13-49490cd0175c
 status: experimental
 description: >
-  Detects requests that F5 BIG-IP ASM blocked and rated Critical or High
-  severity. ASM assigns a severity and a violation_rating to every request it
-  evaluates against the active policy; request_status=blocked with a
-  Critical or High severity means the policy judged the request an attack
-  (SQL injection, path traversal, cross-site scripting, brute force) and
-  stopped it before it reached the application.
+  Detects requests that F5 BIG-IP ASM blocked with a severity of Error,
+  Critical, Alert or Emergency. ASM logs a request_status (passed, alerted,
+  blocked) and a severity category for every request it reports; a blocked
+  request at Error or above means the policy matched a violation such as an
+  attack signature (SQL-Injection, Path Traversal, Cross Site Scripting) and
+  stopped the request before it reached the application.
 references:
   - https://attack.mitre.org/techniques/T1190/
-  - https://techdocs.f5.com/en-us/bigip-15-1-0/big-ip-asm-implementations/configuring-asm-event-logging.html
+  - https://techdocs.f5.com/en-us/bigip-14-0-0/external-monitoring-of-big-ip-systems-implementations-14-0-0/event-messages-and-attack-types.html
 author: LogTriage
 date: 2026/11/02
+modified: 2026/11/10
 logsource:
   product: f5
   service: asm
@@ -25,8 +26,10 @@ detection:
   selection:
     request_status: 'blocked'
     severity:
+      - 'Error'
       - 'Critical'
-      - 'High'
+      - 'Alert'
+      - 'Emergency'
   condition: selection
 falsepositives:
   - New ASM policy in blocking mode before signatures are tuned to the application
