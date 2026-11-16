@@ -1,0 +1,38 @@
+# Detect EC2 Instances Communicating with Known Command-and-Control Infrastructure in AWS GuardDuty Findings
+# Rule ID: LTR-0033
+# Source + explanation: https://logtriage.app/rules/guardduty-backdoor-c2-communication/
+# Validated against a real sample log (malicious/guardduty_findings.json): fires on the malicious sample, silent on the benign one.
+
+title: EC2 Instance Communicating with Known Command-and-Control Infrastructure
+id: 2d1bdbfb-0e0b-427c-856f-00ad5a33d723
+status: experimental
+description: >
+  Detects AWS GuardDuty findings of type Backdoor:EC2/C&CActivity where the
+  EC2 instance is recorded as the ACTOR resource, meaning the instance itself
+  made an outbound connection to an IP address on GuardDuty's threat
+  intelligence list of known command-and-control servers. GuardDuty rates
+  this finding type High severity because it means the instance is already
+  compromised and is actively talking to attacker infrastructure, not merely
+  being scanned or probed.
+references:
+  - https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_finding-types-ec2.html
+  - https://attack.mitre.org/techniques/T1071/
+author: LogTriage
+date: 2026/11/16
+modified: 2026/11/16
+logsource:
+  product: aws
+  service: guardduty
+detection:
+  selection_type:
+    type|contains: 'Backdoor:EC2/C&CActivity'
+  selection_role:
+    resourceRole: 'ACTOR'
+  condition: selection_type and selection_role
+falsepositives:
+  - Security research or honeypot instance intentionally reaching known-bad infrastructure
+  - Recently repurposed IP still present in the threat intelligence feed
+level: high
+tags:
+  - attack.command_and_control
+  - attack.t1071

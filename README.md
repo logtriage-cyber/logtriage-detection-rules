@@ -15,7 +15,7 @@ Most rule collections are published untested. Here, a build step confirms each r
 literals actually appear in a real malicious sample (and not in the matching benign sample), so
 nothing ships that doesn't provably fire. It's the difference between a paper rule and a working one.
 
-## Rules (32)
+## Rules (34)
 
 | ID | Rule | Log source | MITRE ATT&CK | Severity |
 |----|------|-----------|--------------|----------|
@@ -41,6 +41,8 @@ nothing ships that doesn't provably fire. It's the difference between a paper ru
 | `LTR-0032` | [Detect High-Volume API Scraping by Scripted Clients in Generic CSV API Logs](https://logtriage.app/rules/generic-csv-api-scraping/) | Generic CSV | T1119, T1213 | medium |
 | `LTR-0014` | [Detect Two-Factor Authentication Being Disabled in GitHub Audit Logs](https://logtriage.app/rules/github-audit-org-takeover/) | GitHub Audit Log | T1556.006 | high |
 | `LTR-0017` | [Detect Admin Grants and 2-Step Verification Removal in Google Workspace Audit Logs](https://logtriage.app/rules/google-workspace-admin-takeover/) | Google Workspace | T1098, T1556.006, T1078.004 | high |
+| `LTR-0033` | [Detect EC2 Instances Communicating with Known Command-and-Control Infrastructure in AWS GuardDuty Findings](https://logtriage.app/rules/guardduty-backdoor-c2-communication/) | AWS GuardDuty | T1071, T1105 | high |
+| `LTR-0034` | [Detect Admin Endpoint and Sensitive File Scanning in HAProxy Access Logs](https://logtriage.app/rules/haproxy-sensitive-path-scanning/) | HAProxy | T1595.003, T1083 | medium |
 | `LTR-0009` | [Detect Kubernetes Secret Exfiltration in Audit Logs](https://logtriage.app/rules/k8s-secret-exfiltration/) | Kubernetes Audit Log | T1552.007, T1078 | high |
 | `LTR-0006` | [Detect Business Email Compromise via Forwarding and Deleting Inbox Rules (Microsoft 365)](https://logtriage.app/rules/m365-bec-inbox-rule/) | Microsoft 365 Unified Audit Log | T1114.003, T1564.008 | high |
 | `LTR-0001` | [Detect Credential Stuffing Against Authentication Endpoints (nginx / web logs)](https://logtriage.app/rules/nginx-credential-stuffing/) | nginx / Apache access logs | T1110.004, T1110.001 | high |

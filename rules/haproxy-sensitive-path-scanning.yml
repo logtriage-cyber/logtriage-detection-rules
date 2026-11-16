@@ -1,0 +1,42 @@
+# Detect Admin Endpoint and Sensitive File Scanning in HAProxy Access Logs
+# Rule ID: LTR-0034
+# Source + explanation: https://logtriage.app/rules/haproxy-sensitive-path-scanning/
+# Validated against a real sample log (malicious/haproxy_attack.log): fires on the malicious sample, silent on the benign one.
+
+title: HAProxy Admin Endpoint and Sensitive File Probing
+id: 4e692484-3272-46b4-8770-f622e438e3a4
+status: experimental
+description: >
+  Detects a single source probing admin paths (/admin/) and sensitive
+  configuration files (/.env) behind HAProxy and being denied with a
+  401 or 403 several times within a short window. Legitimate traffic to
+  an admin panel comes from authenticated sessions that succeed; a run of
+  denials across distinct sensitive paths from one source is enumeration.
+references:
+  - https://www.haproxy.org/download/2.8/doc/configuration.txt
+  - https://attack.mitre.org/techniques/T1595/003/
+author: LogTriage
+date: 2026/11/16
+logsource:
+  product: haproxy
+  category: webserver
+detection:
+  sensitive_path:
+    request|contains:
+      - '/admin/'
+      - '/.env'
+  denied:
+    status_code:
+      - '403'
+      - '401'
+  timeframe: 5m
+  condition: sensitive_path and denied | count() by src_ip >= 3
+falsepositives:
+  - Authorized vulnerability scan or pentest hitting admin and config paths deliberately
+  - A developer mistyping an admin sub-path a few times before reaching the right one
+level: medium
+tags:
+  - attack.reconnaissance
+  - attack.t1595.003
+  - attack.discovery
+  - attack.t1083
